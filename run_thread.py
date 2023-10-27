@@ -1,13 +1,33 @@
+import urllib3
 from threading import Thread
 import threading
 
-def run_in_a_thread():
-    print("Name of the current thread is {}".format(threading.current_thread().name))
+urllib3.disable_warnings()
+
+class TestThread:
+    def __init__(self, file_name, url):
+        self.file_name = file_name
+        self.url = url
+
+    def download_url(self):
+
+        print(f"Downloading the contents of { self.url } into { self.file_name } from { threading.current_thread().name }")
+        http = urllib3.PoolManager()
+
+        response = http.request(method="GET", url=self.url)
+        with open(self.file_name, "wb") as f:
+            f.write(response.data)
+
+        print(f"Download of { self.url } done")
+
 
 if __name__ == "__main__":
-
-    for i in range(2):
-        new_thread = Thread(target=run_in_a_thread)
-        new_thread.start()
-
-    # run_in_a_thread() # this is usually called main thread
+    test_dict = {
+        "Google": "http://www.google.com",
+        # "Python": "http://www.python.org",
+        "Bing": "http://www.bing.com",
+        # "Yahoo": "http://www.yahoo.com"
+    }
+    for key in test_dict:
+        test = TestThread(key, test_dict[key])
+        test.download_url()
